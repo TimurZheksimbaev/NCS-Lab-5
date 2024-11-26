@@ -9,7 +9,6 @@ jobs:
    name: Run DAST Scan
    runs-on: ubuntu-latest
 
- 
    steps:
    - name: Deploy PyGoat
      run: |
@@ -25,18 +24,15 @@ jobs:
        cmd_options: '-a'
        allow_issue_writing: false
        format: json
-       # Specify the correct output files
-       issue_title: "ZAP Scan Report"
        fail_action: false
  
    - name: Process Scan Results
      if: always()
      run: |
-       # ZAP creates report with this default name
-       if [ -f report.json ]; then
-         jq . report.json > formatted-zap-report.json
+       if [ -f report_json.json ]; then
+         jq . report_json.json > formatted-zap-report.json
        else
-         echo "ZAP report not found"
+         echo "ZAP JSON report not found"
          ls -la
        fi
  
@@ -46,7 +42,9 @@ jobs:
      with:
        name: zap-scan-reports
        path: |
-         report.*
+         report_*.html
+         report_*.json
+         report_*.md
          formatted-zap-report.json
 
  sast_scan:
