@@ -8,7 +8,7 @@ jobs:
  dast_scan:
    name: Run DAST Scan
    runs-on: ubuntu-latest
-   needs: [image_scan]  # Ensures DAST runs after image scanning
+
 
    steps:
    - name: Deploy PyGoat
