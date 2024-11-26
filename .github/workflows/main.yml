@@ -8,8 +8,8 @@ jobs:
  dast_scan:
    name: Run DAST Scan
    runs-on: ubuntu-latest
-
-
+   needs: [image_scan]
+ 
    steps:
    - name: Deploy PyGoat
      run: |
@@ -23,15 +23,22 @@ jobs:
      with:
        target: 'http://localhost:8000'
        cmd_options: '-a'
-       allow_issue_writing: false  # Disabled GitHub issues creation
+       allow_issue_writing: false
        format: json
-       
-   - name: Generate HTML Report
+       # Specify the correct output files
+       issue_title: "ZAP Scan Report"
+       fail_action: false
+ 
+   - name: Process Scan Results
      if: always()
      run: |
-       sudo apt-get update
-       sudo apt-get install -y jq
-       jq . zap-scan.json > formatted-zap-scan.json
+       # ZAP creates report with this default name
+       if [ -f report.json ]; then
+         jq . report.json > formatted-zap-report.json
+       else
+         echo "ZAP report not found"
+         ls -la
+       fi
  
    - name: Upload ZAP Scan Report
      uses: actions/upload-artifact@v3
@@ -39,8 +46,8 @@ jobs:
      with:
        name: zap-scan-reports
        path: |
-         formatted-zap-scan.json
-         zap-scan.html
+         report.*
+         formatted-zap-report.json
 
  sast_scan:
    name: Run Bandit Scan
